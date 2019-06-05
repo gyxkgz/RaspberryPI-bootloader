@@ -282,7 +282,7 @@ int main ( int argc, char *argv[] )
         return(1);
     }
     printf("port opened\n");
-
+    
     seq=17;
     firstaddr=0xFFFFFFFF;
     if(readhex(fp,kernel_stat.st_size))
@@ -318,7 +318,7 @@ int main ( int argc, char *argv[] )
     rc&=0xFF;
 
     ser_senddata(sdata,ra);
-
+	set_minicom();
     ser_close();
     printf("\n\n");
     return(0);

@@ -9,9 +9,12 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <termios.h>
+#include <sys/types.h>
 
 #include <sys/ioctl.h>
 #include <time.h>
+
+#define BUF_SIZE 65536
 
 int ser_hand;
 unsigned short ser_buffcnt;
@@ -99,6 +102,37 @@ unsigned short ser_dump ( unsigned short x )
         ser_buffcnt=(ser_buffcnt+1)&0xFFF;
     }
     return(r);
+}
+
+void set_minicom()
+{
+    struct termios old_tio, new_tio;
+    fd_set rfds, wfds, efds;
+	tcgetattr(STDIN_FILENO, &old_tio);
+    new_tio = old_tio;
+    new_tio.c_lflag &= (~ICANON & ~ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &new_tio);
+    while(1)
+    {
+		FD_ZERO(&rfds);
+		FD_SET(0, &rfds);
+		FD_SET(ser_hand, &rfds);
+		int ret=select(ser_hand+1, &rfds, &wfds, &efds, NULL);
+		if(ret)
+		{
+			// input from the user, copy to RPi
+			if (FD_ISSET(STDIN_FILENO, &rfds)) {
+				 char buf[BUF_SIZE];
+				ssize_t len = read(STDIN_FILENO, &buf[0], BUF_SIZE);
+				ssize_t len2 = write(ser_hand, buf, len);
+			}
+			if (FD_ISSET(ser_hand, &rfds)) {
+				 char buf2[BUF_SIZE];
+				ssize_t len = read(ser_hand, buf2, BUF_SIZE);
+				ssize_t len2 = write(STDOUT_FILENO, buf2, len);		    
+			}
+		}
+	}
 }
 //-----------------------------------------------------------------------------
 // Copyright (C) David Welch, 2000
