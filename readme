@@ -1,0 +1,16 @@
+# RaspberryPI Bootloader
+
+## a simple bootloader for raspberry to avoid sdcard plug and unplug
+
+build:
+binary
+    make clean
+    make
+hex:
+    make clean
+    make TYPE=hex
+
+usage:
+    raspiloader-img /dev/ttyUSBx test.img
+    raspiloader-hex /dev/ttyUSBx test.hex
+
