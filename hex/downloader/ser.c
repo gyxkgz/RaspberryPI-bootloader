@@ -124,6 +124,8 @@ void set_minicom()
 			if (FD_ISSET(STDIN_FILENO, &rfds)) {
 				 char buf[BUF_SIZE];
 				ssize_t len = read(STDIN_FILENO, &buf[0], BUF_SIZE);
+				if(buf[0]==CEOT)
+					break;
 				ssize_t len2 = write(ser_hand, buf, len);
 			}
 			if (FD_ISSET(ser_hand, &rfds)) {
@@ -133,6 +135,7 @@ void set_minicom()
 			}
 		}
 	}
+	tcsetattr(STDIN_FILENO, TCSANOW, &old_tio);
 }
 //-----------------------------------------------------------------------------
 // Copyright (C) David Welch, 2000

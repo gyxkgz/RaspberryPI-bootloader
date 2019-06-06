@@ -225,6 +225,8 @@ int main(int argc, char *argv[]) {
 			// input from the user, copy to RPi
 			if (FD_ISSET(STDIN_FILENO, &rfds)) {
 				ssize_t len = read(STDIN_FILENO, &buf[0], BUF_SIZE);
+				if(buf[0]==CEOT)
+					break;
 				ssize_t len2 = write(fd, buf, len);
 			}
 			if (FD_ISSET(fd, &rfds)) {
@@ -236,6 +238,7 @@ int main(int argc, char *argv[]) {
 	}
     
     close(fd);
+    tcsetattr(STDIN_FILENO, TCSANOW, &old_tio);
     return 0;
 }
 
